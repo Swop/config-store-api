@@ -10,7 +10,7 @@ before_script:
   - composer self-update
   - composer install --no-interaction --prefer-source --dev
   - git submodule update --init --recursive
-  - mkdir app/cache app/logs
+  - mkdir -p app/cache app/logs
   - chmod 777 app/cache app/logs
   - app/console --env=test cache:warmup
   - chmod -R 777 app/cache app/logs
