@@ -46,6 +46,8 @@ class GroupController extends FOSRestController implements ClassResourceInterfac
     /**
      * Gets all groups
      *
+     * @Rest\View(serializerGroups="AppGroup")
+     *
      * @return AppGroup
      */
     public function cgetAction()
