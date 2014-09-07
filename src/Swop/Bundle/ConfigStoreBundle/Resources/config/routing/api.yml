@@ -1,0 +1,15 @@
+apps:
+    type:        rest
+    resource:    Swop\Bundle\ConfigStoreBundle\Controller\AppController
+    name_prefix: api_apps_
+
+groups:
+    type:        rest
+    resource:    Swop\Bundle\ConfigStoreBundle\Controller\GroupController
+    name_prefix: api_groups_
+
+config:
+    type:        rest
+    resource:    Swop\Bundle\ConfigStoreBundle\Controller\ConfigController
+    name_prefix: api_apps_config_
+    parent:      apps

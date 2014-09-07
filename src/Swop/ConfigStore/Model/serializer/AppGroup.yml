@@ -1,0 +1,18 @@
+Swop\ConfigStore\Model\AppGroup:
+    exclusion_policy: ALL
+    access_type: public_method
+    read_only: true
+    properties:
+        id:
+            expose: true
+            type: integer
+            groups: [AppGroup, App]
+        name:
+            expose: true
+            type: string
+            groups: [AppGroup, App]
+        apps:
+            expose: true
+            type: ArrayCollection<Swop\ConfigStore\Model\App>
+            groups: [AppGroup]
+            max_depth: 1

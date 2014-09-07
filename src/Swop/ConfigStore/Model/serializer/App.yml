@@ -1,0 +1,29 @@
+Swop\ConfigStore\Model\App:
+    exclusion_policy: ALL
+    access_type: public_method
+    read_only: true
+    properties:
+        id:
+            expose: true
+            type: integer
+            groups: [App, AppGroup, ConfigItem, Diff]
+        name:
+            expose: true
+            type: string
+            groups: [App, AppGroup, ConfigItem, Diff]
+        description:
+            expose: true
+            type: string
+            groups: [App]
+        group:
+            expose: true
+            type: Swop\ConfigStore\Model\AppGroup
+            groups: [App]
+        accessKey:
+            expose: true
+            type: string
+            groups: [admin]
+        configItems:
+            expose: true
+            type: ArrayCollection<Swop\ConfigStore\Model\ConfigItem>
+            groups: [App, Diff]

@@ -1,0 +1,13 @@
+default:
+    suites:
+        api:
+            contexts:
+                - Swop\Bundle\ConfigStoreBundle\FeatureContext\KernelAwareConfigStoreContext
+                - Swop\ConfigStore\Features\Context\VerboseWebApiContext
+            filters:
+                tags: '@api'
+            paths:    [ src/Swop/ConfigStore/Features/Features ]
+    extensions:
+        Behat\Symfony2Extension: ~
+        Behat\WebApiExtension:
+            base_url: http://127.0.0.1:8080

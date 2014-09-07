@@ -1,0 +1,103 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+
+framework:
+    translator:      { fallback: "%locale%" }
+    secret:          "%secret%"
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: ~
+    form:            ~
+    csrf_protection: ~
+    validation:      { enable_annotations: true }
+    templating:
+        engines: ['php']
+    default_locale:  "%locale%"
+    trusted_hosts:   ~
+    trusted_proxies: ~
+    session:
+        handler_id:  ~
+    fragments:       ~
+    http_method_override: true
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   "%database_driver%"
+        host:     "%database_host%"
+        port:     "%database_port%"
+        dbname:   "%database_name%"
+        user:     "%database_user%"
+        password: "%database_password%"
+        charset:  UTF8
+
+    orm:
+        auto_generate_proxy_classes: %kernel.debug%
+        entity_managers:
+            default:
+                auto_mapping: true
+                mappings:
+                    Model:
+                        type:    xml
+                        dir:     %kernel.root_dir%/../src/Swop/ConfigStore/Model/mapping
+                        alias:   Model
+                        prefix:  Swop\ConfigStore\Model
+                        is_bundle: false
+                    SwopConfigStoreBundle: ~
+
+fos_rest:
+    view:
+        view_response_listener: force
+        force_redirects:
+          html: true
+        formats:
+            json: true
+            xml: false
+            rss: false
+        templating_formats:
+            html: true
+        mime_types:
+            json: ['application/json', 'application/x-json', 'application/vnd.example-com.foo+json']
+            rss: 'application/rss+xml'
+            jpg: 'image/jpeg'
+            png: 'image/png'
+            yaml: ['text/x-yaml', 'text/yaml', 'application/x-yaml']
+        serialize_null: true
+    body_listener:
+        decoders:
+            json: fos_rest.decoder.json
+        array_normalizer: fos_rest.normalizer.camel_keys
+    body_converter:
+        enabled: true
+        validate: true
+        validation_errors_argument: validationErrors
+    param_fetcher_listener: force
+    allowed_methods_listener: true
+    access_denied_listener:
+        json: true
+    format_listener:
+        rules:
+            - { path: ^/, priorities: [json, yaml], fallback_format: ~, prefer_extension: false }
+    routing_loader:
+        default_format: json
+        include_format: false
+    exception:
+        codes:
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': 404
+            'Doctrine\ORM\OptimisticLockException': HTTP_CONFLICT
+        messages:
+            'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
+    service:
+        view_handler: swop.config_store.view.handler
+    serializer:
+        version: 1.0
+        groups: []
+        serialize_null: true
+
+jms_serializer:
+    metadata:
+        directories:
+            Model:
+                namespace_prefix: "Swop\\ConfigStore\\Model"
+                path: "%kernel.root_dir%/../src/Swop/ConfigStore/Model/serializer"

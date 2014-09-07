@@ -1,0 +1,25 @@
+language: php
+php:
+  - 5.4
+  - 5.5
+  - 5.6
+services:
+  - mysql
+before_script:
+  # install behat, mink etc
+  - composer self-update
+  - composer install --no-interaction --prefer-source --dev
+  - git submodule update --init --recursive
+  - mkdir app/cache app/logs
+  - chmod 777 app/cache app/logs
+  - app/console --env=test cache:warmup
+  - chmod -R 777 app/cache app/logs
+  # db setup
+  - app/console do:da:cr -e=test > /dev/null
+  - app/console do:sc:up -e=test > /dev/null
+  # webserver setup
+  - bin/start_server &
+  - sleep 3
+script:
+  - bin/behat --config application/tests/behat.yml
+  - bin/phpunit -c application/tests/phpunit.xml

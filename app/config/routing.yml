@@ -1,0 +1,2 @@
+swop_config_store_bundle:
+    resource: "@SwopConfigStoreBundle/Resources/config/routing.yml"

@@ -1,0 +1,3 @@
+api:
+    type:     rest
+    resource: "routing/api.yml"

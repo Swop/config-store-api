@@ -1,0 +1,28 @@
+# Configs
+/app/config/parameters.yml
+
+# Caches
+/app/bootstrap.php.cache
+/app/cache/*
+!app/cache/.gitkeep
+
+# Data
+/app/data/*
+!app/data/.gitkeep
+
+# Logs
+/app/logs/*
+!app/logs/.gitkeep
+/server.log
+
+# Temp
+/build/
+
+# Assets
+/web/bundles/
+
+# Dependencies
+/vendor/
+/bin/*
+!/bin/start_server
+/composer.phar
