@@ -12,14 +12,14 @@ before_script:
   - git submodule update --init --recursive
   - mkdir -p app/cache app/logs
   - chmod 777 app/cache app/logs
-  - app/console --env=test cache:warmup
+  - app/console cache:warmup --env=test
   - chmod -R 777 app/cache app/logs
   # db setup
-  - app/console do:da:cr -e=test > /dev/null
-  - app/console do:sc:up -e=test > /dev/null
+  - app/console doctrine:database:create --env=test
+  - app/console doctrine:schema:create --env=test
   # webserver setup
   - bin/start_server &
   - sleep 3
 script:
   - bin/behat --config application/tests/behat.yml
-  - bin/phpunit -c application/tests/phpunit.xml
+  - bin/phpunit -c app
