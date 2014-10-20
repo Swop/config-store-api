@@ -1,0 +1,17 @@
+admin_app_list:
+    path: /
+    defaults: { _controller: "swop.config_store.controller.admin.app:listAction" }
+
+admin_app_create:
+    path: /create
+    defaults: { _controller: "swop.config_store.controller.admin.app:createAction" }
+    requirements:
+        _method:  POST
+
+admin_app_diff:
+    path: /{appSlug}/diff/{otherAppSlug}
+    defaults: { _controller: "swop.config_store.controller.admin.app:diffAction" }
+
+admin_app_delete:
+    path: /{appSlug}/delete
+    defaults: { _controller: "swop.config_store.controller.admin.app:deleteAction" }

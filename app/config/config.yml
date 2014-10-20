@@ -12,7 +12,7 @@ framework:
     csrf_protection: ~
     validation:      { enable_annotations: true }
     templating:
-        engines: ['php']
+        engines: ['twig']
     default_locale:  "%locale%"
     trusted_hosts:   ~
     trusted_proxies: ~
@@ -20,6 +20,13 @@ framework:
         handler_id:  ~
     fragments:       ~
     http_method_override: true
+
+twig:
+#    form:
+#        resources: ['bootstrap_3_horizontal_layout.html.twig']
+#        resources: ['SwopConfigStoreBundle:Form:bootstrap_3_horizontal_layout.html.twig']
+    debug:            "%kernel.debug%"
+    strict_variables: "%kernel.debug%"
 
 # Doctrine Configuration
 doctrine:
@@ -53,8 +60,10 @@ fos_rest:
           html: true
         formats:
             json: true
-            xml: false
+            xml: true
             rss: false
+            yaml: true
+            php: true
         templating_formats:
             html: true
         mime_types:
@@ -62,7 +71,9 @@ fos_rest:
             rss: 'application/rss+xml'
             jpg: 'image/jpeg'
             png: 'image/png'
+            xml: 'application/xml'
             yaml: ['text/x-yaml', 'text/yaml', 'application/x-yaml']
+            php: ['application/x-httpd-php', 'application/x-httpd-php-source', 'application/x-php', 'text/x-php']
         serialize_null: true
     body_listener:
         decoders:
@@ -78,7 +89,10 @@ fos_rest:
         json: true
     format_listener:
         rules:
-            - { path: ^/, priorities: [json, yaml], fallback_format: ~, prefer_extension: false }
+            - { path: ^/api, priorities: [json, yaml, xml, php], fallback_format: ~, prefer_extension: false }
+            - { path: ^/myconfig, priorities: [json, yaml, xml, php], fallback_format: ~, prefer_extension: false }
+            - { path: ^/admin, priorities: [html, json], fallback_format: ~, prefer_extension: false }
+#            - { path: ^/admin, stop: true } # Only for fos-rest >= 1.5
     routing_loader:
         default_format: json
         include_format: false
@@ -89,7 +103,7 @@ fos_rest:
         messages:
             'Symfony\Component\Routing\Exception\ResourceNotFoundException': true
     service:
-        view_handler: swop.config_store.view.handler
+        view_handler: swop.bundle.config_store.view.handler
     serializer:
         version: 1.0
         groups: []
@@ -101,3 +115,12 @@ jms_serializer:
             Model:
                 namespace_prefix: "Swop\\ConfigStore\\Model"
                 path: "%kernel.root_dir%/../src/Swop/ConfigStore/Model/serializer"
+
+stof_doctrine_extensions:
+    orm:
+        default:
+            timestampable: true
+            sluggable: true
+
+jms_aop:
+    cache_dir: %kernel.cache_dir%/jms_aop

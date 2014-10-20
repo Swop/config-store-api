@@ -16,3 +16,7 @@ Swop\ConfigStore\Model\AppGroup:
             type: ArrayCollection<Swop\ConfigStore\Model\App>
             groups: [AppGroup]
             max_depth: 1
+        reference:
+            expose: true
+            type: Swop\ConfigStore\Model\App
+            groups: [AppGroup, App]

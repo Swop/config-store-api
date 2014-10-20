@@ -26,35 +26,40 @@ class AppManager
     protected $groupRepository;
     /** @var ObjectManager */
     protected $persistenceManager;
+    /** @var ConfigManager */
+    private $configManager;
 
     /**
      * @param AppRepository                                 $appRepository
      * @param \Doctrine\Common\Persistence\ObjectRepository $groupRepository
      * @param \Doctrine\Common\Persistence\ObjectManager    $persistenceManager
+     * @param ConfigManager                                 $configManager
      */
     public function __construct(
         AppRepository $appRepository,
         ObjectRepository $groupRepository,
-        ObjectManager $persistenceManager
+        ObjectManager $persistenceManager,
+        ConfigManager $configManager
     ) {
         $this->appRepository      = $appRepository;
         $this->groupRepository    = $groupRepository;
         $this->persistenceManager = $persistenceManager;
+        $this->configManager      = $configManager;
     }
 
     /**
-     * Find an app which have the given name
+     * Find an app which have the given slug
      *
-     * @param string $appName
+     * @param string $appSlug
      *
      * @return App
      *
      * @throws \Swop\ConfigStore\Exception\UnknownAppException
      */
-    public function getByName($appName)
+    public function getBySlug($appSlug)
     {
-        if (null === $app = $this->appRepository->findAppByName($appName)) {
-            throw new UnknownAppException($appName);
+        if (null === $app = $this->appRepository->findBySlug($appSlug)) {
+            throw new UnknownAppException($appSlug);
         }
 
         return $app;
@@ -110,11 +115,78 @@ class AppManager
      */
     public function getByAccessKey($accessKey)
     {
-        if (null === $app = $this->appRepository->findAppByAccessKey($accessKey)) {
+        if (null === $app = $this->appRepository->findByAccessKey($accessKey)) {
             throw new UnknownAppException($accessKey);
         }
 
         return $app;
+    }
+
+    /**
+     * Checks if the given access key is attached to an App
+     *
+     * @param string $accessKey
+     *
+     * @return bool
+     */
+    public function isValidAccessKey($accessKey)
+    {
+        return $this->appRepository->isValidAccessKey($accessKey);
+    }
+
+    /**
+     * @param App $app
+     *
+     * @return null|App
+     */
+    public function getReferenceApp(App $app)
+    {
+        return $app->getRef();
+    }
+
+    /**
+     * @param App $app
+     *
+     * @return array|null
+     */
+    public function getDiffWithReference(App $app)
+    {
+        $ref = $this->getReferenceApp($app);
+
+        if (null === $ref) {
+            return null;
+        }
+
+        return $this->getDiff($app, $ref);
+    }
+
+    /**
+     * Checks if the given app is out of sync (difference in config keys) with tis reference, if it has one.
+     *
+     * @param App $app
+     *
+     * @return bool
+     */
+    public function isOutOfSyncWithReference(App $app)
+    {
+        $diff = $this->getDiffWithReference($app);
+
+        if (is_array($diff)) {
+            return !$this->configManager->isEmptyKeyDiff($diff);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param App $app
+     * @param App $app2
+     *
+     * @return array
+     */
+    public function getDiff(App $app, App $app2)
+    {
+        return $this->configManager->diff($app, $app2);
     }
 
     /**

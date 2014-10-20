@@ -4,6 +4,8 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
+        <parameter key="swop.config_store.model.user.class">Swop\ConfigStore\Model\User</parameter>
+        <parameter key="swop.config_store.repository.user.class">Swop\ConfigStore\Repository\UserRepository</parameter>
         <parameter key="swop.config_store.model.app.class">Swop\ConfigStore\Model\App</parameter>
         <parameter key="swop.config_store.repository.app.class">Swop\ConfigStore\Repository\AppRepository</parameter>
         <parameter key="swop.config_store.model.group.class">Swop\ConfigStore\Model\AppGroup</parameter>
@@ -23,6 +25,18 @@
                  factory-service="swop.config_store.persistence_manager.app"
                  factory-method="getRepository">
             <argument>%swop.config_store.model.app.class%</argument>
+        </service>
+
+        <service id="swop.config_store.persistence_manager.user" class="%swop.config_store.doctrine.base_persistence_manager.class%"
+                 factory-service="doctrine"
+                 factory-method="getManagerForClass">
+            <argument>%swop.config_store.model.user.class%</argument>
+        </service>
+
+        <service id="swop.config_store.repository.user" class="%swop.config_store.repository.user.class%"
+                 factory-service="swop.config_store.persistence_manager.user"
+                 factory-method="getRepository">
+            <argument>%swop.config_store.model.user.class%</argument>
         </service>
 
         <service id="swop.config_store.persistence_manager.config_item" class="%swop.config_store.doctrine.base_persistence_manager.class%"

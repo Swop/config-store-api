@@ -11,6 +11,10 @@ Swop\ConfigStore\Model\App:
             expose: true
             type: string
             groups: [App, AppGroup, ConfigItem, Diff]
+        slug:
+            expose: true
+            type: string
+            groups: [App, AppGroup, ConfigItem, Diff]
         description:
             expose: true
             type: string

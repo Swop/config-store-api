@@ -1,0 +1,233 @@
+{% extends 'SwopConfigStoreBundle::base.html.twig' %}
+
+{% import _self as listing %}
+
+{% macro appgroup(apps, id, group) %}
+    <div class="panel panel-default" id="group-{{ id }}">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                {% if group %}{{ group.name }}{% else %}Other apps{% endif %}
+            </h4>
+        </div>
+        <div class="panel-body">
+            <section class="app-list">
+                {% for app in apps %}
+
+                    {% set outOfSync = is_out_of_sync(app) %}
+                    {% set isRef = app.isRef() %}
+                    {% set ref = app.getRef() %}
+                    {% set diff = diff_with_ref(app) %}
+                    {% if diff %}
+                        {% set missing = diff['missing_left']|length %}
+                        {% set new = diff['missing_right']|length %}
+                        {% set diffKeyCount = diff['missing_left']|length + diff['missing_right']|length %}
+                    {% endif %}
+                    {% set possibleToCompareToRef = not isRef and ref is not null %}
+
+                    <article id="app-{{ app.id }}" class="app">
+                        <div class="panel {% if outOfSync %}panel-danger {% elseif isRef %}panel-info {% else %}panel-default {% endif %}">
+
+                            {# ----- APP TITLE ----- #}
+                            <div class="panel-heading">
+                                <h3 class="panel-title">{{ app.name }} {% if outOfSync %}<span class="badge pull-right">{{ diffKeyCount }} keys diff</span>{% elseif isRef %}<span class="label label-info pull-right">REF</span>{% endif %}</h3>
+                            </div>
+
+                            {% if app.description %}
+                                <div class="app-desc">
+                                    {{ app.description }}
+                                </div>
+                            {% endif %}
+
+                            {# ----- APP BODY ----- #}
+                            <div class="panel-body">
+                                {#Apps in a group have multiple buttons. Must thus be wrapped in another layer of btn-group#}
+                                {% if app.group %}<div class="btn-group">{% endif %}
+
+                                {# ----- COMPARE BUTTON ----- #}
+                                {% if app.group %}
+                                    {% if possibleToCompareToRef %}
+                                        {% set compareRefLink = path('admin_app_diff', { 'appSlug': app.slug, 'otherAppSlug': ref.slug }) %}
+                                        <div class="btn-group">
+                                            <a href="{{ compareRefLink }}" class="btn btn-warning">
+                                                <span class="glyphicon glyphicon-transfer"></span> REF
+                                            </a>
+
+                                            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                                                <span class="caret"></span>
+                                                <span class="sr-only">Toggle Compare Dropdown</span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                {% if possibleToCompareToRef %}
+                                                    <li><a href="{{ compareRefLink }}">Compare with <span class="label label-default">REF</span></a></li>
+                                                    <li class="divider"></li>
+                                                {% endif %}
+                                                <li><a href="#" data-toggle="modal" data-target="#app-{{ app.id }}-compare-modal">Compare with...</a></li>
+                                            </ul>
+                                        </div>
+                                    {% else %}
+                                        <a href="#" class="btn btn-default" data-toggle="modal" data-target="#app-{{ app.id }}-compare-modal">
+                                            <span class="glyphicon glyphicon-transfer"></span> Compare
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                                {# ----- END COMPARE BUTTON ----- #}
+
+                                {# ----- OPTIONS ----- #}
+                                <div class="btn-group">
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="app-{{ app.id }}-options-dropdown-button" data-toggle="dropdown">
+                                        <span class="glyphicon glyphicon-cog"></span>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="#"><span class="glyphicon glyphicon-wrench"></span> Edit config keys</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="#"><span class="glyphicon glyphicon-repeat"></span> Duplicate...</a></li>
+                                        {% if app.group and not isRef %}<li><a href="#">Consider as <span class="label label-default">REF</span></a></li>{% endif %}
+                                        <li class="divider"></li>
+                                        <li><a href="{{ secure_path('admin_app_delete', 'deleteApp', {'appSlug': app.slug}) }}"><span class="glyphicon glyphicon-trash"></span> Delete</a></li>
+                                    </ul>
+                                </div>
+                                {# ----- END OPTIONS ----- #}
+
+                                {% if app.group %}</div>{% endif %}
+                            </div>
+                            {# ----- END APP BODY ----- #}
+
+                            {# ----- DIFF ERRORS ----- #}
+                            {% if outOfSync %}
+                                <ul class="list-group list-diff-errors">
+                                    {% if missing is defined %}
+                                        <li class="list-group-item">
+                                            <span class="label label-danger pull-right">{{ missing }}</span>Missing
+                                        </li>
+                                    {% endif %}
+                                    {% if new is defined %}
+                                        <li class="list-group-item">
+                                            <span class="label label-danger pull-right">{{ new }}</span>New
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            {% endif %}
+                            {# ----- END DIFF ERRORS ----- #}
+
+                            {# ----- APP FOOTER (APIKEY) ----- #}
+                            <div class="panel-footer">
+                                <a href="#" data-role="api-key-toggle-button" data-target="api-key-{{ app.id }}"><!--<span class="glyphicon glyphicon-lock"></span>--> API key</a>
+                                <pre style="display: none" class="api-key" id="api-key-{{ app.id }}"><code>{{ app.accessKey }}</code></pre>
+                            </div>
+                            {# ----- END APP FOOTER (APIKEY) ----- #}
+                        </div>
+                    </article>
+
+                    {# ----- APP CHOICE FOR COMPARISON MODAL ----- #}
+                    <div class="modal fade" id="app-{{ app.id }}-compare-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-sm">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                    <h4 class="modal-title">Compare with...</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form role="form" data-role="compare-form">
+                                        <div class="form-group">
+                                            <label for="app-{{ app.id }}-compare-modal-app" >Application</label>
+                                            <select id="app-{{ app.id }}-compare-modal-app" class="form-control">
+                                                {% for app2 in apps %}
+                                                    {% if app.id != app2.id %}
+                                                        <option value="{{ path('admin_app_diff', { 'appSlug': app.slug, 'otherAppSlug': app2.slug }) }}">{{ app2.name }}{% if ref and app2.id == ref.id %} (REF){% endif %}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" data-role="app-compare-modal-submit-button" data-selector="#app-{{ app.id }}-compare-modal-app">Compare</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {# ----- END APP CHOICE FOR COMPARISON MODAL ----- #}
+                {% endfor %}
+                <article id="app-new-{{ id }}" class="app">
+                    <a href="#" class="btn btn-primary btn-block" data-role="NewAppButton" data-target="#app-new-modal" data-group-id="{{ id }}"><span class="glyphicon glyphicon-plus"></span> Add new</a>
+                </article>
+            </section>
+        </div>
+    </div>
+{% endmacro %}
+
+{% block body %}
+    <div class="row">
+        <div class="hidden-sm col-md-2" id="app-list-nav">
+            <ul class="nav nav-pills nav-stacked" data-spy="affix">
+                {% for groupItem in groups %}
+                    <li {% if loop.first %}class="active"{% endif %}><a href="#group-{{ groupItem.group.id }}">{{ groupItem.group.name }}</a></li>
+                {% endfor %}
+                <li><a href="#group-standalone">Other apps</a></li>
+            </ul>
+        </div>
+
+        <div class="col-xs-12 col-md-10">
+            {# ----- MAIN TOOLBAR ----- #}
+            <div class="btn-toolbar app-list-toolbar-main" role="toolbar">
+                <div class="btn-group pull-right">
+                    <a href="#" class="btn btn-primary" data-role="NewAppButton" data-target="#app-new-modal"><span class="glyphicon glyphicon-plus"></span> New application</a>
+                </div>
+            </div>
+
+            {# ----- APP GROUPS ----- #}
+            <div class="panel-group">
+                {% for groupItem in groups %}
+                    {{ listing.appgroup(groupItem['apps'], groupItem['group'].id, groupItem['group']) }}
+                {% endfor %}
+                {{ listing.appgroup(standaloneApps, 'standalone') }}
+            </div>
+        </div>
+
+        {# ----- NEW APP MODAL ----- #}
+        <div class="modal fade" id="app-new-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">New application</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form" data-role="new-app-form">
+                            <div class="form-group">
+                                <label for="app_name" >Name</label>
+                                <input type="text" id="app_name" name="app[name]" class="form-control" placeholder="Name of the application" />
+                                <label for="app_description" >Description</label>
+                                <textarea id="app_description" name="app[description]" placeholder="Description" class="form-control"></textarea>
+                                <label for="app_group" >Group</label>
+                                <select id="app_group" name="app[group]" class="form-control">
+                                    <option value=""></option>
+                                    {% for groupItem in groups %}
+                                        <option value="{{ groupItem.group.id }}">{{ groupItem.group.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-role="app-new-submit-button">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {# ----- END NEW APP MODAL ----- #}
+    </div>
+{% endblock body %}
+
+{#{% block templates %}#}
+    {#<script type="text/template" id="editApp">#}
+        {#<form>#}
+            {#<input type="text" name="name" />#}
+            {#<input type="text" name="description" />#}
+            {#<input type="text" name="group" />#}
+        {#</form>#}
+    {#</script>#}
+{#{% endblock %}#}

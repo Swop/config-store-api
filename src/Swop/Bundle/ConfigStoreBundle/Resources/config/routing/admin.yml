@@ -1,0 +1,7 @@
+admin_homepage:
+    path: /
+    defaults: { _controller: "SwopConfigStoreBundle:Admin/Home:home" }
+
+admin_apps:
+    prefix: /apps
+    resource: 'admin/apps.yml'

@@ -1,3 +1,11 @@
+security:
+    resource: "routing/security.yml"
+    prefix: /admin
+
 api:
     type:     rest
     resource: "routing/api.yml"
+
+admin:
+    resource: "routing/admin.yml"
+    prefix: /admin

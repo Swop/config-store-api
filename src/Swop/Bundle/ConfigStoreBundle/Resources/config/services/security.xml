@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="swop.bundle.config_store.security.authenticator.api_key.class">Swop\Bundle\ConfigStoreBundle\Security\Authenticator\ApiKeyAuthenticator</parameter>
+        <parameter key="swop.bundle.config_store.security.user.api_key_based_app_provider.class">Swop\Bundle\ConfigStoreBundle\Security\User\ApiKeyBasedAppProvider</parameter>
+        <parameter key="swop.bundle.config_store.security.user.user_provider.class">Swop\Bundle\ConfigStoreBundle\Security\User\UserProvider</parameter>
+    </parameters>
+    <services>
+        <service id="swop.bundle.config_store.security.authenticator.api_key" class="%swop.bundle.config_store.security.authenticator.api_key.class%" />
+
+        <service id="swop.bundle.config_store.security.user.api_key_based_app_provider" class="%swop.bundle.config_store.security.user.api_key_based_app_provider.class%">
+            <argument type="service" id="swop.config_store.manager.app" />
+        </service>
+
+        <service id="swop.bundle.config_store.security.user.user_provider" class="%swop.bundle.config_store.security.user.user_provider.class%">
+            <argument type="service" id="swop.config_store.manager.user" />
+        </service>
+    </services>
+</container>

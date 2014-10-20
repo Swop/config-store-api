@@ -28,6 +28,8 @@ class App
     private $id;
     /** @var string $name */
     private $name;
+    /** @var string $slug */
+    private $slug;
     /** @var string $description */
     private $description;
     /** @var AppGroup $group */
@@ -36,13 +38,14 @@ class App
     private $accessKey;
     /** @var ConfigItem[] $configItems */
     private $configItems;
+    /** @var \DateTime */
+    private $createdAt;
+    /** @var \DateTime */
+    private $updatedAt;
 
-    public function __construct($name, $accessKey)
+    public function __construct()
     {
         $this->configItems = new ArrayCollection();
-
-        $this->setName($name);
-        $this->setAccessKey($accessKey);
     }
 
     /**
@@ -54,7 +57,7 @@ class App
     }
 
     /**
-     * @return \Swop\ConfigStore\Model\ConfigItem[]
+     * @return Collection
      */
     public function getConfigItems()
     {
@@ -147,6 +150,7 @@ class App
         return array_reduce(
             $this->configItems->toArray(),
             function ($keys, $item) {
+                /** @var ConfigItem $item */
                 $keys[] = $item->getKey();
 
                 return $keys;
@@ -185,6 +189,16 @@ class App
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Gets the slug attribute
+     *
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 
     /**
@@ -259,11 +273,64 @@ class App
         return array_reduce(
             $this->getConfigItems()->toArray(),
             function ($configArray, $item) {
+                /** @var ConfigItem $item */
                 $configArray[$item->getKey()] = $item->getValue();
 
                 return $configArray;
             },
             []
         );
+    }
+
+    /**
+     * Gets the createdAt attribute
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt()
+    {
+        return $this->createdAt;
+    }
+
+    /**
+     * Gets the updatedAt attribute
+     *
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRef()
+    {
+        return $this->group && $this === $this->group->getReference();
+    }
+
+    /**
+     * Get app reference
+     *
+     * @return null|App
+     */
+    public function getRef()
+    {
+        if (null !== $group = $this->getGroup()) {
+            return $group->getReference();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get app string representation (for security usage)
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getSlug();
     }
 }

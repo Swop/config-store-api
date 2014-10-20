@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="swop.config_store.form.type.login.class">Swop\Bundle\ConfigStoreBundle\Form\Type\LoginType</parameter>
+        <parameter key="swop.config_store.form.type.app.class">Swop\ConfigStore\Form\Type\AppType</parameter>
+        <parameter key="swop.config_store.form.type.app_group.class">Swop\ConfigStore\Form\Type\AppGroupType</parameter>
+        <parameter key="swop.config_store.form.type.app_group_selector.class">Swop\ConfigStore\Form\Type\AppGroupSelectorType</parameter>
+    </parameters>
+    <services>
+        <service id="swop.config_store.form.type.login" class="%swop.config_store.form.type.login.class%">
+            <tag name="form.type" alias="login"/>
+        </service>
+
+        <service id="swop.config_store.form.type.app" class="%swop.config_store.form.type.app.class%">
+            <argument type="service" id="swop.config_store.api_key.generator" />
+            <tag name="form.type" alias="app"/>
+        </service>
+
+        <service id="swop.config_store.form.type.app_group" class="%swop.config_store.form.type.app_group.class%">
+            <tag name="form.type" alias="app_group"/>
+        </service>
+
+        <service id="swop.config_store.form.type.app_group_selector" class="%swop.config_store.form.type.app_group_selector.class%">
+            <argument type="service" id="swop.config_store.manager.app" />
+            <tag name="form.type" alias="app_group_selector"/>
+        </service>
+    </services>
+</container>
