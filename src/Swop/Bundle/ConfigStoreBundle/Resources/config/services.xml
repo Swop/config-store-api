@@ -8,5 +8,12 @@
         <import resource="services/doctrine.xml"/>
         <import resource="services/managers.xml"/>
         <import resource="services/view.xml"/>
+        <import resource="services/config_view_adapters.xml"/>
+        <import resource="services/security.xml"/>
+        <import resource="services/controller.xml"/>
+        <import resource="services/forms.xml"/>
+        <import resource="services/api_key.xml"/>
+        <import resource="services/twig.xml"/>
+        <import resource="services/aop.xml"/>
     </imports>
 </container>

@@ -11,6 +11,7 @@
 namespace Swop\ConfigStore\Manager;
 
 use Doctrine\Common\Persistence\ObjectManager;
+use Swop\ConfigStore\Exception\IncompatibleAppsException;
 use Swop\ConfigStore\Model\App;
 use Swop\ConfigStore\Model\ConfigItem;
 use Swop\ConfigStore\Repository\ConfigItemRepository;
@@ -21,6 +22,8 @@ class ConfigManager
     protected $configItemRepository;
     /** @var ObjectManager */
     protected $persistenceManager;
+    /** @var array */
+    protected $diffCache;
 
     /**
      * @param ConfigItemRepository $configItemRepository
@@ -30,6 +33,7 @@ class ConfigManager
     {
         $this->configItemRepository = $configItemRepository;
         $this->persistenceManager   = $persistenceManager;
+        $this->diffCache            = array();
     }
 
     /**
@@ -54,6 +58,16 @@ class ConfigManager
      */
     public function diff(App $app1, App $app2)
     {
+        if (!$this->canCompare($app1, $app2)) {
+            throw new IncompatibleAppsException($app1, $app2);
+        }
+
+        $diffCacheKey = $this->getDiffCacheKey($app1, $app2);
+
+        if (array_key_exists($diffCacheKey, $this->diffCache)) {
+            return $this->diffCache[$diffCacheKey];
+        }
+
         $diff = [
             'app_left'      => $app1,
             'app_right'     => $app2,
@@ -124,7 +138,50 @@ class ConfigManager
             }
         }
 
+        $this->diffCache[$diffCacheKey] = $diff;
+
         return $diff;
+    }
+
+    /**
+     * Checks if the two apps can be compared (i.e. are from the same group)
+     *
+     * @param App $app
+     * @param App $app2
+     *
+     * @return bool
+     */
+    public function canCompare(App $app, App $app2)
+    {
+        $group1 = $app->getGroup();
+        $group2  = $app2->getGroup();
+
+        return $group1 === $group2;
+    }
+
+    /**
+     * @param array $diff
+     *
+     * @return bool
+     */
+    public function isEmptyDiff(array $diff)
+    {
+        return 0 == count($diff['different'])
+            && 0 == count($diff['missing_left'])
+            && 0 == count($diff['missing_right'])
+        ;
+    }
+
+    /**
+     * @param array $diff
+     *
+     * @return bool
+     */
+    public function isEmptyKeyDiff(array $diff)
+    {
+        return 0 == count($diff['missing_left'])
+            && 0 == count($diff['missing_right'])
+        ;
     }
 
     /**
@@ -147,5 +204,10 @@ class ConfigManager
     {
         $this->persistenceManager->remove($configItem);
         $this->persistenceManager->flush($configItem);
+    }
+
+    private function getDiffCacheKey(App $app, App $app2)
+    {
+        return 'diff_' . $app->getId() . '_' . $app2->getId();
     }
 }

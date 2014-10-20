@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="swop.config_store.config_view.config_view_dumper.adapter.json.class">Swop\ConfigStore\ConfigView\Adapter\JsonConfigView</parameter>
+        <parameter key="swop.config_store.config_view.config_view_dumper.adapter.php.class">Swop\ConfigStore\ConfigView\Adapter\PhpConfigView</parameter>
+        <parameter key="swop.config_store.config_view.config_view_dumper.adapter.yaml.class">Swop\ConfigStore\ConfigView\Adapter\YamlConfigView</parameter>
+    </parameters>
+    <services>
+        <service id="swop.config_store.config_view.config_view_dumper.adapter.json" class="%swop.config_store.config_view.config_view_dumper.adapter.json.class%">
+            <argument type="service" id="jms_serializer" />
+            <tag name="swop.bundle.config_store.config_view_dumper.adapter" />
+        </service>
+        <service id="swop.config_store.config_view.config_view_dumper.adapter.php" class="%swop.config_store.config_view.config_view_dumper.adapter.php.class%">
+            <tag name="swop.bundle.config_store.config_view_dumper.adapter" />
+        </service>
+        <service id="swop.config_store.config_view.config_view_dumper.adapter.yaml" class="%swop.config_store.config_view.config_view_dumper.adapter.yaml.class%">
+            <tag name="swop.bundle.config_store.config_view_dumper.adapter" />
+        </service>
+    </services>
+</container>

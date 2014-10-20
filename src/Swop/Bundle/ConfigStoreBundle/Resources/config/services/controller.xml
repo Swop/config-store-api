@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="swop.config_store.controller.admin.app.class">Swop\Bundle\ConfigStoreBundle\Controller\Admin\AppController</parameter>
+    </parameters>
+    <services>
+        <service id="swop.config_store.controller.admin.app" class="%swop.config_store.controller.admin.app.class%">
+            <call method="setContainer">
+                <argument type="service" id="service_container" /><!-- FIXME: This is for compatibility with controller which expends Symfony controllers -->
+            </call>
+        </service>
+    </services>
+</container>

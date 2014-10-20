@@ -11,24 +11,26 @@
 namespace Swop\ConfigStore\Repository;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query;
 use Swop\ConfigStore\Model\App;
 
 class AppRepository extends EntityRepository
 {
     /**
-     * Find an app which have the given name
+     * Find an app which have the given slug
      *
-     * @param string $appName
+     * @param string $appSlug
      *
      * @return App|null
      */
-    public function findAppByName($appName)
+    public function findBySlug($appSlug)
     {
         return $this->queryApp()
-            ->andWhere('a.name = :name')
-            ->setParameter('name', $appName)
+            ->andWhere('a.slug = :slug')
+            ->setParameter('slug', $appSlug)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getOneOrNullResult()
+        ;
     }
 
     /**
@@ -38,13 +40,14 @@ class AppRepository extends EntityRepository
      *
      * @return App|null
      */
-    public function findAppByAccessKey($accessKey)
+    public function findByAccessKey($accessKey)
     {
         return $this->queryApp()
             ->andWhere('a.accessKey = :accessKey')
             ->setParameter('accessKey', $accessKey)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getOneOrNullResult()
+        ;
     }
 
     /**
@@ -58,6 +61,25 @@ class AppRepository extends EntityRepository
     }
 
     /**
+     * Checks if the given access key is attached to an App
+     *
+     * @param string $accessKey
+     *
+     * @return bool
+     */
+    public function isValidAccessKey($accessKey)
+    {
+        $dql = "SELECT COUNT(a.id) FROM ".$this->getEntityName()." a
+                WHERE a.accessKey = :accessKey";
+
+        $count = $this->_em->createQuery($dql)
+            ->setParameter('accessKey', $accessKey)
+            ->getResult(Query::HYDRATE_SINGLE_SCALAR);
+
+        return (0 < (int)$count);
+    }
+
+    /**
      * Build base query builder to fetch an app with its config values
      *
      * @return \Doctrine\ORM\QueryBuilder
@@ -68,6 +90,7 @@ class AppRepository extends EntityRepository
             ->addSelect('ci')
             ->addSelect('g')
             ->leftJoin('a.configItems', 'ci')
-            ->leftJoin('a.group', 'g');
+            ->leftJoin('a.group', 'g')
+        ;
     }
 }

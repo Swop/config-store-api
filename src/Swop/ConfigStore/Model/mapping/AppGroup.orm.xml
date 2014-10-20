@@ -9,6 +9,10 @@
 
         <field name="name" type="string" column="name" length="255" nullable="false" />
 
+        <one-to-one field="reference" target-entity="Swop\ConfigStore\Model\App">
+            <join-column name="reference_id" nullable="true" />
+        </one-to-one>
+
         <one-to-many target-entity="Swop\ConfigStore\Model\App" mapped-by="group" field="apps" />
     </entity>
 </doctrine-mapping>

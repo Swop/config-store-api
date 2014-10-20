@@ -13,3 +13,8 @@ config:
     resource:    Swop\Bundle\ConfigStoreBundle\Controller\ConfigController
     name_prefix: api_apps_config_
     parent:      apps
+
+my_config:
+    type:        rest
+    resource:    Swop\Bundle\ConfigStoreBundle\Controller\MyconfigController
+    name_prefix: api_myconfig_

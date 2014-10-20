@@ -1,0 +1,39 @@
+{% extends 'SwopConfigStoreBundle::base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="well"><code>{{ app.name }}</code>..<code>{{ otherApp.name }}</code></div>
+
+        {% if diff %}
+            <table class="table table-hover diff">
+                <thead>
+                <tr>
+                    <th class="col-md-2"></th>
+                    <th class="diff_app_title">{{ app.name }}{% if app.isRef() %} <span class="label label-info">REF</span>{% endif %}</th>
+                    <th class="diff_app_title">{{ otherApp.name }}{% if otherApp.isRef() %} <span class="label label-info">REF</span>{% endif %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for key in diff['keys_union'] %}
+                    <tr class="diff_row">
+                        <td>{{ key }}</td>
+                        {% if key in diff['missing_left'] %}
+                            <td></td>
+                            <td class="diff_good">{{ otherApp.getConfigItem(key).value }}</td>
+                        {% elseif key in diff['missing_right'] %}
+                            <td class="diff_good">{{ app.getConfigItem(key).value }}</td>
+                            <td></td>
+                        {% elseif key in diff['identical'] %}
+                            <td>{{ app.getConfigItem(key).value }}</td>
+                            <td>{{ otherApp.getConfigItem(key).value }}</td>
+                        {% elseif key in diff['different'] %}
+                            <td class="diff_bad">{{ app.getConfigItem(key).value }}</td>
+                            <td class="diff_bad">{{ otherApp.getConfigItem(key).value }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock body %}

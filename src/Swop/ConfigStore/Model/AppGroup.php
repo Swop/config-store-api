@@ -10,20 +10,26 @@
 
 namespace Swop\ConfigStore\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
 class AppGroup
 {
     /** @var int $id */
     private $id;
     /** @var string $name */
     private $name;
-    /** @var App[] */
+    /** @var Collection */
     private $apps;
+    /** @var App */
+    private $reference;
 
     /**
      * @param string $name Group name
      */
     public function __construct($name)
     {
+        $this->apps = new ArrayCollection();
         $this->setName($name);
     }
 
@@ -33,6 +39,16 @@ class AppGroup
     public function getApps()
     {
         return $this->apps;
+    }
+
+    /**
+     * @param App $app
+     */
+    public function addApp(App $app)
+    {
+        if (!$this->apps->contains($app)) {
+            $this->apps->add($app);
+        }
     }
 
     /**
@@ -67,5 +83,27 @@ class AppGroup
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * @param App $app
+     */
+    public function setReference(App $app)
+    {
+        if ($app->getGroup() !== $this) {
+            throw new \DomainException('An application must be part of the group if you want to use it as a reference for the group');
+        }
+
+        $this->reference = $app;
+    }
+
+    /**
+     * Gets the reference attribute
+     *
+     * @return App
+     */
+    public function getReference()
+    {
+        return $this->reference;
     }
 }

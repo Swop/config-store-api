@@ -4,18 +4,15 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
-        <parameter key="swop.config_store.view.yaml_handler.class">Swop\Bundle\ConfigStoreBundle\View\YamlViewHandler</parameter>
+        <parameter key="swop.bundle.config_store.view.handler.class">Swop\Bundle\ConfigStoreBundle\View\ConfigViewHandler</parameter>
+        <parameter key="swop.config_store.config_view.config_view_dumper.class">Swop\ConfigStore\ConfigView\ConfigViewDumper</parameter>
     </parameters>
     <services>
-        <service id="swop.config_store.view.yaml_handler" class="%swop.config_store.view.yaml_handler.class%" />
-        <service id="swop.config_store.view.handler" parent="fos_rest.view_handler.default">
-            <call method="registerHandler">
-                <argument>yaml</argument>
-                <argument type="collection">
-                    <argument type="service" id="swop.config_store.view.yaml_handler" />
-                    <argument>createYamlResponse</argument>
-                </argument>
+        <service id="swop.bundle.config_store.view.handler" parent="fos_rest.view_handler.default" class="%swop.bundle.config_store.view.handler.class%">
+            <call method="setConfigViewDumper">
+                <argument type="service" id="swop.config_store.config_view.config_view_dumper" />
             </call>
         </service>
+        <service id="swop.config_store.config_view.config_view_dumper" class="%swop.config_store.config_view.config_view_dumper.class%" />
     </services>
 </container>

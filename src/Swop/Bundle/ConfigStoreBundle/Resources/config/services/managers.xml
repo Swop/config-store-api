@@ -6,17 +6,23 @@
     <parameters>
         <parameter key="swop.config_store.manager.app.class">Swop\ConfigStore\Manager\AppManager</parameter>
         <parameter key="swop.config_store.manager.config.class">Swop\ConfigStore\Manager\ConfigManager</parameter>
+        <parameter key="swop.config_store.manager.user.class">Swop\ConfigStore\Manager\UserManager</parameter>
     </parameters>
     <services>
         <service id="swop.config_store.manager.app" class="%swop.config_store.manager.app.class%">
             <argument type="service" id="swop.config_store.repository.app" />
             <argument type="service" id="swop.config_store.repository.group" />
             <argument type="service" id="swop.config_store.persistence_manager.app" />
+            <argument type="service" id="swop.config_store.manager.config" />
         </service>
 
         <service id="swop.config_store.manager.config" class="%swop.config_store.manager.config.class%">
             <argument type="service" id="swop.config_store.repository.config_item" />
             <argument type="service" id="swop.config_store.persistence_manager.config_item" />
+        </service>
+
+        <service id="swop.config_store.manager.user" class="%swop.config_store.manager.user.class%">
+            <argument type="service" id="swop.config_store.repository.user" />
         </service>
     </services>
 </container>

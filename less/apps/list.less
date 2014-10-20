@@ -1,0 +1,28 @@
+.app-list {
+    .app {
+        display: inline-block;
+        vertical-align: top;
+        width: 250px;
+        padding: 10px;
+
+        .app-desc {
+            font-size: x-small;
+            font-style: italic;
+            border-left: 5px solid @gray-lighter;
+            padding: 10px;
+            background-color: lighten(@gray-lighter, 2%);
+        }
+
+        .list-diff-errors {
+            color: @state-danger-text
+        }
+
+        .api-key {
+            font-size: x-small;
+        }
+    }
+}
+
+.app-list-toolbar-main {
+    margin-bottom: 20px;
+}

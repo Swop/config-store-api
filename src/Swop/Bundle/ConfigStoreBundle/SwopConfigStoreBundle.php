@@ -10,8 +10,16 @@
 
 namespace Swop\Bundle\ConfigStoreBundle;
 
+use Swop\Bundle\ConfigStoreBundle\DependencyInjection\CompilerPass\RegisterConfigViewAdaptersCompilerPass;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class SwopConfigStoreBundle extends Bundle
 {
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new RegisterConfigViewAdaptersCompilerPass());
+    }
 }
