@@ -29,7 +29,6 @@ Swop\ConfigStore\Model\ConfigItem:
             - NotBlank: ~
             - Length: { min: 1, max: 255 }
         value:
-            - NotBlank: ~
             - Length: { max: 255 }
         app:
             - NotBlank: ~

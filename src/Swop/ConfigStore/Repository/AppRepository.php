@@ -61,6 +61,20 @@ class AppRepository extends EntityRepository
     }
 
     /**
+     * Find standalone apps
+     *
+     * @return array
+     */
+    public function findStandaloneApps()
+    {
+        return $this->queryApp()
+            ->andWhere('a.group IS NULL')
+            ->orderBy('a.id')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Checks if the given access key is attached to an App
      *
      * @param string $accessKey

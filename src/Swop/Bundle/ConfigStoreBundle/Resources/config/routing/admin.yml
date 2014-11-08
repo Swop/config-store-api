@@ -5,3 +5,7 @@ admin_homepage:
 admin_apps:
     prefix: /apps
     resource: 'admin/apps.yml'
+
+admin_groups:
+    prefix: /groups
+    resource: 'admin/groups.yml'

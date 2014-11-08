@@ -75,6 +75,11 @@ class AppManager
         return $this->appRepository->findAllApps();
     }
 
+    public function getStandaloneApps()
+    {
+        return $this->appRepository->findStandaloneApps();
+    }
+
     /**
      * Find a group which have the given id
      *
@@ -237,7 +242,7 @@ class AppManager
     protected function saveObject($object)
     {
         $this->persistenceManager->persist($object);
-        $this->persistenceManager->flush($object);
+        $this->persistenceManager->flush();
     }
 
     /**

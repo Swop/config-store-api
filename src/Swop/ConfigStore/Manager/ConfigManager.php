@@ -179,9 +179,7 @@ class ConfigManager
      */
     public function isEmptyKeyDiff(array $diff)
     {
-        return 0 == count($diff['missing_left'])
-            && 0 == count($diff['missing_right'])
-        ;
+        return 0 == count($diff['missing_left']);
     }
 
     /**
@@ -202,8 +200,16 @@ class ConfigManager
      */
     public function delete(ConfigItem $configItem)
     {
-        $this->persistenceManager->remove($configItem);
-        $this->persistenceManager->flush($configItem);
+        $this->deleteMultiple([$configItem]);
+    }
+
+    public function deleteMultiple(array $configItems)
+    {
+        foreach ($configItems as $configItem) {
+            $this->persistenceManager->remove($configItem);
+        }
+
+        $this->persistenceManager->flush($configItems);
     }
 
     private function getDiffCacheKey(App $app, App $app2)

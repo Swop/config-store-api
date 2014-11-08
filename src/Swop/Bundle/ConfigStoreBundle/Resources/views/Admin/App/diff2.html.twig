@@ -1,0 +1,102 @@
+{% extends 'SwopConfigStoreBundle::base.html.twig' %}
+
+{% block body %}
+    <div class="row" ng-controller="DiffCtrl as diffCtrl" ng-init="diffCtrl.init()">
+    {% verbatim %}
+        <div>
+            <form data-role="save-config-form" data-app-slug="{{ application.slug }}">
+            <table class="table diff">
+                <thead>
+                <tr>
+                    <th class="col-md-2"></th>
+                    <th class="diff_app_title editable_app">{{ application.name }}<span ng-if="application.ref"> <span class="label label-info">REF</span></span></th>
+                    <th class="col-md-1"></th>
+                    <th class="diff_app_title" ng-if="viewType == 'diff'">{{ otherApplication.name }}<span ng-if="otherApplication.ref"> <span class="label label-info">REF</span></span></th>
+                </tr>
+                </thead>
+                <tbody data-role="diff-rows">
+                    <tr class="diff_row" ng-repeat="(key, state) in states">
+                        <td ng-class="{editable_app: state != 'missing_left'}">
+                            {{ key }}
+                            <span ng-if="state == 'missing_left'" class="pull-right label" ng-class="{'label-danger': state == 'missing_left' && otherApplication.ref, 'label-warning': state == 'missing_left' && !otherApplication.ref}">missing</span>
+                            <span ng-if="state == 'missing_right'" class="pull-right label label-info">new</span>
+                            <input ng-if="state != 'missing_left'" type="hidden" name="appConfig[configItems][{{ diffCtrl.getConfig(application.config_items, key).index }}][key]" value="{{ key }}" />
+                        </td>
+
+                        <td ng-class="{ editable_app: state != 'missing_left', diff_good: state == 'missing_right', diff_bad: state == 'different' || (state == 'missing_left' && otherApplication.ref), diff_missing: state == 'missing_left' && !otherApplication.ref }">
+                            <!--<span ng-if="state == 'missing_left'">Missing...</span>-->
+                            <input ng-if="state != 'missing_left'" ng-change="diffCtrl.updateStates()" type="text" name="appConfig[configItems][{{ diffCtrl.getConfig(application.config_items, key).index }}][value]" ng-model="application.config_items[key].value" />
+                        </td>
+
+                        <td>
+                            <div class="btn-toolbar diff-toolbar-main" role="toolbar" data-role="config-item-toolbar">
+                                <div class="btn-group btn-group-xs pull-right">
+                                    <button ng-if="state != 'missing_right' && state != 'edit'" ng-click="diffCtrl.copyRightToLeft(key)" class="btn btn-link" data-toggle="tooltip" data-placement="bottom" title="Copy right to left"><span class="glyphicon glyphicon-arrow-left"></span></button>
+                                    <button ng-if="state != 'missing_left'" ng-click="diffCtrl.delete(key)" class="btn btn-link" data-toggle="tooltip" data-placement="bottom" title="Delete config"><span class="glyphicon glyphicon-trash"></span></button>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td ng-if="viewType == 'diff'" ng-class="{diff_good: state == 'missing_left', diff_bad: state == 'different', diff_missing: state == 'missing_right'}">
+                            <span ng-if="state == 'missing_right'">Missing...</span>
+                            <span ng-if="state != 'missing_right'">{{ diffCtrl.getConfig(otherApplication.config_items, key).value }}</span>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="{{ viewType == 'diff' ? 4 : 3  }}">
+                            <div class="btn-toolbar diff-toolbar-main" role="toolbar">
+                                <div class="btn-group pull-right">
+                                    <a href="#" class="btn btn-default" data-toggle="modal" data-target="#config-new-modal"><span class="glyphicon glyphicon-plus"></span> Add config</a>
+                                    <button ng-click="diffCtrl.saveConfig()" class="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Save configuration</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+            </form>
+        </div>
+        <div class="modal fade" id="config-new-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">New config</h4>
+                    </div>
+                    <form role="form" data-role="new-config-form" name="newConfigForm" ng-submit="diffCtrl.submitNewConfigForm(newConfigForm.$valid)">
+                        <div class="modal-body">
+                            <div class="form-group" ng-class="{ 'has-error' : newConfigForm.new_config_key.$invalid && !newConfigForm.new_config_key.$pristine }">
+                                <label for="new_config_key" >Config key</label>
+                                <input type="text" id="new_config_key" name="new_config_key" class="form-control" placeholder="my_config_key" ng-model="newConfigKey" ng-required="true" ng-minlength="1" required ui-validate="{ exists: 'diffCtrl.checkExistingConfigKey($value)' }" />
+                                <p ng-show="newConfigForm.new_config_key.$error.required && !newConfigForm.new_config_key.$pristine" class="help-block">The config key is required.</p>
+                                <p ng-show='newConfigForm.new_config_key.$error.exists && !newConfigForm.new_config_key.$pristine' class="help-block">This config key is already taken</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button ng-disabled="newConfigForm.$invalid" type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+{% endblock body %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        (function(window) {
+            window.diff_data = {
+                application: {{ application|raw }}
+                {% if otherApplication is defined %},
+                    otherApplication: {{ otherApplication|raw }}
+                {% endif %}
+            };
+        })(window);
+    </script>
+{% endblock %}

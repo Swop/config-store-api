@@ -10,11 +10,14 @@
 
 namespace Swop\ConfigStore\Form\Type;
 
+use Swop\ConfigStore\ApiKey\ApiKeyGenerator;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-class AppGroupType extends AbstractType
+class ConfigItemType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -23,7 +26,8 @@ class AppGroupType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', 'text')
+            ->add('key', 'text')
+            ->add('value', 'text')
         ;
     }
 
@@ -34,7 +38,7 @@ class AppGroupType extends AbstractType
     {
         $resolver->setDefaults(
             array(
-                'data_class'      => 'Swop\ConfigStore\Model\AppGroup',
+                'data_class'      => 'Swop\ConfigStore\Model\ConfigItem',
                 'csrf_protection' => false,
             )
         );
@@ -46,6 +50,6 @@ class AppGroupType extends AbstractType
      */
     public function getName()
     {
-        return 'appGroup';
+        return 'configItem';
     }
 }

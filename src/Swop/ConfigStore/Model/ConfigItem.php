@@ -27,30 +27,6 @@ class ConfigItem
     private $value;
 
     /**
-     * @param App    $app
-     * @param string $key
-     * @param string $value
-     *
-     * @throws \LogicException
-     */
-    public function __construct(App $app, $key, $value)
-    {
-        $this->app   = $app;
-
-        if (!is_string($key)) {
-            throw new \LogicException('The config value must be a string');
-        }
-
-        $this->value = $value;
-
-        if (!is_string($key) || empty($key)) {
-            throw new \LogicException('The config key must be a non-empty string');
-        }
-
-        $this->key = $key;
-    }
-
-    /**
      * @return \Swop\ConfigStore\Model\App
      */
     public function getApp()
@@ -66,6 +42,34 @@ class ConfigItem
     public function setApp(App $app)
     {
         $this->app = $app;
+
+        return $this;
+    }
+
+    /**
+     * Sets the key attribute
+     *
+     * @param string $key
+     *
+     * @return $this
+     */
+    public function setKey($key)
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    /**
+     * Sets the value attribute
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
 
         return $this;
     }

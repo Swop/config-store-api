@@ -1,0 +1,9 @@
+admin_group_create:
+    path: /create
+    defaults: { _controller: "swop.config_store.controller.admin.group:createAction" }
+    requirements:
+        _method:  POST
+
+admin_group_delete:
+    path: /{groupId}/delete
+    defaults: { _controller: "swop.config_store.controller.admin.group:deleteAction" }

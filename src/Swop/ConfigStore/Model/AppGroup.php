@@ -25,12 +25,11 @@ class AppGroup
     private $reference;
 
     /**
-     * @param string $name Group name
+     * Constructor
      */
-    public function __construct($name)
+    public function __construct()
     {
         $this->apps = new ArrayCollection();
-        $this->setName($name);
     }
 
     /**

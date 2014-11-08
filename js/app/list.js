@@ -66,7 +66,37 @@
                     }
                 }
             });
+        });
 
+        $('*[data-role="NewGroupButton"]').click(function(event) {
+            event.preventDefault();
+
+            $("#group_name").val('');
+            $('#group-new-modal').modal('show');
+        });
+
+        $('button[data-role="group-new-submit-button"]').click(function (event) {
+            event.preventDefault();
+            var json = $('form[data-role="new-group-form"]').serializeJSON();
+
+            $.ajax({
+                url: "/admin/groups/create",
+                data: json,
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                statusCode: {
+                    201: function() {
+                        window.location.reload();
+                    }
+                },
+                error: function (xhr) {
+                    if (xhr.status != 201) {
+                        console.log(xhr.status);
+                        alert('Error');
+                    }
+                }
+            });
         });
     });
 })(jQuery, window);

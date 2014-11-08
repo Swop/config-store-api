@@ -11,6 +11,8 @@
         "bootstrap": "~3.2.0",
         "angular": "~1.2.27",
         "twig.js": "~0.7.2",
-        "jquery-serialize-object": "~2.4.3"
+        "jquery-serialize-object": "~2.4.3",
+        "lodash": "~2.4.1",
+        "angular-ui-utils": "bower"
     }
 }

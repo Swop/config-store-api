@@ -9,6 +9,8 @@
         <parameter key="swop.config_store.form.type.app.class">Swop\ConfigStore\Form\Type\AppType</parameter>
         <parameter key="swop.config_store.form.type.app_group.class">Swop\ConfigStore\Form\Type\AppGroupType</parameter>
         <parameter key="swop.config_store.form.type.app_group_selector.class">Swop\ConfigStore\Form\Type\AppGroupSelectorType</parameter>
+        <parameter key="swop.config_store.form.type.config_item.class">Swop\ConfigStore\Form\Type\ConfigItemType</parameter>
+        <parameter key="swop.config_store.form.type.app_config.class">Swop\ConfigStore\Form\Type\AppConfigType</parameter>
     </parameters>
     <services>
         <service id="swop.config_store.form.type.login" class="%swop.config_store.form.type.login.class%">
@@ -21,12 +23,20 @@
         </service>
 
         <service id="swop.config_store.form.type.app_group" class="%swop.config_store.form.type.app_group.class%">
-            <tag name="form.type" alias="app_group"/>
+            <tag name="form.type" alias="appGroup"/>
         </service>
 
         <service id="swop.config_store.form.type.app_group_selector" class="%swop.config_store.form.type.app_group_selector.class%">
             <argument type="service" id="swop.config_store.manager.app" />
             <tag name="form.type" alias="app_group_selector"/>
+        </service>
+
+        <service id="swop.config_store.form.type.config_item" class="%swop.config_store.form.type.config_item.class%">
+            <tag name="form.type" alias="configItem"/>
+        </service>
+
+        <service id="swop.config_store.form.type.app_config" class="%swop.config_store.form.type.app_config.class%">
+            <tag name="form.type" alias="appConfig"/>
         </service>
     </services>
 </container>

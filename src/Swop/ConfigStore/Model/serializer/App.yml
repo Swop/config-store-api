@@ -2,6 +2,11 @@ Swop\ConfigStore\Model\App:
     exclusion_policy: ALL
     access_type: public_method
     read_only: true
+    virtual_properties:
+        isRef:
+            serialized_name: ref
+            type: boolean
+            groups: [App]
     properties:
         id:
             expose: true
@@ -23,6 +28,13 @@ Swop\ConfigStore\Model\App:
             expose: true
             type: Swop\ConfigStore\Model\AppGroup
             groups: [App]
+#        ref:
+#            expose: true
+#            type: boolean
+#            groups: [App, Diff]
+#            read-only: true
+#            accessor:
+#                getter: isRefOfGroup
         accessKey:
             expose: true
             type: string

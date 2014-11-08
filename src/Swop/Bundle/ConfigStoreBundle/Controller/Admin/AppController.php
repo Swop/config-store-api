@@ -29,30 +29,33 @@ class AppController extends Controller
     {
         $appManager = $this->get('swop.config_store.manager.app');
 
-        $apps = $appManager->all();
+        $groups = $appManager->allGroups();
+        $standaloneApps = $appManager->getStandaloneApps();
 
-        $groups = array();
-        $standaloneApps = array();
-        /** @var App $app */
-        foreach ($apps as $app) {
-            if (null !== $group = $app->getGroup()) {
-                if (!array_key_exists($group->getId(), $groups)) {
-                    $groups[$group->getId()] = array(
-                        'group' => $group,
-                        'apps' => array($app)
-                    );
-                } else {
-                    if ($app->isRef()) {
-                        array_unshift($groups[$group->getId()]['apps'], $app);
-                    } else {
-                        $groups[$group->getId()]['apps'][] = $app;
-                    }
-                }
-            } else {
-                $standaloneApps[] = $app;
-            }
-        }
-
+//        $apps = $appManager->all();
+//
+//        $groups = array();
+//        $standaloneApps = array();
+//        /** @var App $app */
+//        foreach ($apps as $app) {
+//            if (null !== $group = $app->getGroup()) {
+//                if (!array_key_exists($group->getId(), $groups)) {
+//                    $groups[$group->getId()] = array(
+//                        'group' => $group,
+//                        'apps' => array($app)
+//                    );
+//                } else {
+//                    if ($app->isRef()) {
+//                        array_unshift($groups[$group->getId()]['apps'], $app);
+//                    } else {
+//                        $groups[$group->getId()]['apps'][] = $app;
+//                    }
+//                }
+//            } else {
+//                $standaloneApps[] = $app;
+//            }
+//        }
+//
         return ['groups' => $groups, 'standaloneApps' => $standaloneApps];
     }
 
@@ -104,8 +107,6 @@ class AppController extends Controller
      *
      * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     *
-     * @Template()
      */
     public function diffAction($appSlug, $otherAppSlug)
     {
@@ -126,6 +127,13 @@ class AppController extends Controller
 
         $diff = $configManager->diff($app, $otherApp);
 
-        return ['diff' => $diff, 'app' => $app, 'otherApp' => $otherApp];
+        $serializer = $this->get('jms_serializer');
+
+//        return ['diff' => $diff, 'application' => $app, 'otherApplication' => $otherApp];
+        return $this->render('SwopConfigStoreBundle:Admin/App:diff2.html.twig', [
+                'diff'             => $serializer->serialize($diff, 'json'),
+                'application'      => $serializer->serialize($app, 'json', SerializationContext::create()->setGroups('App')),
+                'otherApplication' => $serializer->serialize($otherApp, 'json', SerializationContext::create()->setGroups('App'))
+        ]);
     }
 }

@@ -14,8 +14,10 @@ module.exports = function(grunt) {
                     'components/jquery/dist/jquery.min.js',
                     'components/bootstrap/dist/js/bootstrap.min.js',
                     'components/jquery-serialize-object/dist/jquery.serialize-object.min.js',
-                    'components/twig.js/twig.js.min'
-                    //'components/angular/angular.min.js'
+                    'components/twig.js/twig.js.min',
+                    'components/lodash/dist/lodash.min.js',
+                    'components/angular/angular.min.js',
+                    'components/angular-ui-utils/ui-utils.min.js'
                 ],
                 dest: 'web/js/vendors.js'
             }
@@ -60,6 +62,12 @@ module.exports = function(grunt) {
                 files: [
                     {expand: true, cwd: 'components/bootstrap/fonts', src: ['**'], dest: 'web/fonts/'}
                 ]
+            },
+            dev_js: {
+                files: {
+                    'web/js/<%= pkg.name %>.min.js': ['<%= concat.project.dest %>'],
+                    'web/js/vendors.min.js': ['<%= concat.vendors.dest %>']
+                }
             }
         },
         watch: {
@@ -72,7 +80,7 @@ module.exports = function(grunt) {
             },
             js: {
                 files: ['<%= jshint.files %>'],
-                tasks: ['jshint', 'concat', 'uglify']
+                tasks: ['jshint', 'concat', 'copy:dev_js']
             }
         }
     });
@@ -86,6 +94,9 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', ['jshint']);
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'less', 'copy:bootstrap_fonts', 'watch']);
+    grunt.registerTask('prod', ['concat', 'uglify', 'less', 'copy:bootstrap_fonts']);
+    grunt.registerTask('dev', ['jshint', 'concat', 'copy:dev_js', 'less', 'copy:bootstrap_fonts']);
+
+    grunt.registerTask('default', ['dev', 'watch']);
 
 };

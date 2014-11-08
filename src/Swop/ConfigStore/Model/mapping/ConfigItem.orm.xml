@@ -6,7 +6,7 @@
         <id name="key" type="string" column="config_key" length="255" />
         <id name="app" association-key="true" />
 
-        <field name="value" type="string" column="config_value" length="255" nullable="false" />
+        <field name="value" type="string" column="config_value" length="255" nullable="true" />
 
         <many-to-one target-entity="Swop\ConfigStore\Model\App" field="app" inversed-by="configItems">
             <join-column name="app_id" nullable="false" on-delete="CASCADE" />

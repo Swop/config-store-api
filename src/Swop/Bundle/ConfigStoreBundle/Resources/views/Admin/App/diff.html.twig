@@ -2,38 +2,101 @@
 
 {% block body %}
     <div class="row">
-        <div class="well"><code>{{ app.name }}</code>..<code>{{ otherApp.name }}</code></div>
+        <div class="well"><code>{{ application.name }}</code>..<code>{{ otherApplication.name }}</code></div>
 
         {% if diff %}
-            <table class="table table-hover diff">
+            <form data-role="save-config-form" data-app-slug="{{ application.slug }}">
+            {#<table class="table table-hover diff">#}
+            <table class="table diff">
                 <thead>
                 <tr>
                     <th class="col-md-2"></th>
-                    <th class="diff_app_title">{{ app.name }}{% if app.isRef() %} <span class="label label-info">REF</span>{% endif %}</th>
-                    <th class="diff_app_title">{{ otherApp.name }}{% if otherApp.isRef() %} <span class="label label-info">REF</span>{% endif %}</th>
+                    <th class="diff_app_title editable_app">{{ application.name }}{% if application.isRef() %} <span class="label label-info">REF</span>{% endif %}</th>
+                    <th class="col-md-1"></th>
+                    <th class="diff_app_title">{{ otherApplication.name }}{% if otherApplication.isRef() %} <span class="label label-info">REF</span>{% endif %}</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody data-role="diff-rows">
                 {% for key in diff['keys_union'] %}
-                    <tr class="diff_row">
-                        <td>{{ key }}</td>
+                    <tr class="diff_row" data-role="config-node-{{ loop.index0 }}">
                         {% if key in diff['missing_left'] %}
-                            <td></td>
-                            <td class="diff_good">{{ otherApp.getConfigItem(key).value }}</td>
+                            <td>
+                                {{ key }}
+                            </td>
+                        {% else %}
+                            <td class="editable_app">
+                                <input type="text" name="appConfig[configItems][{{ loop.index0 }}][key]" value="{{ key }}" />
+                            </td>
+                        {% endif %}
+
+                        {% if key in diff['missing_left'] %}
+                            <td class="editable_app"></td>
+                            <td>
+                                <div class="btn-toolbar diff-toolbar-main" role="toolbar" data-role="config-item-toolbar">
+                                    <div class="btn-group btn-group-xs pull-right">
+                                        <a href="#" class="btn btn-link" data-role="copy-right-to-left-button" data-toggle="tooltip" data-placement="bottom" title="Copy right to left" data-config-index="{{ loop.index0 }}" data-config-keyname="{{ key }}" data-config-value="{{ otherApplication.getConfigItem(key).value }}"><span class="glyphicon glyphicon-arrow-left"></span></a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="diff_good">{{ otherApplication.getConfigItem(key).value }}</td>
                         {% elseif key in diff['missing_right'] %}
-                            <td class="diff_good">{{ app.getConfigItem(key).value }}</td>
+                            {#<td class="diff_good editable_app">{{ application.getConfigItem(key).value }}</td>#}
+                            <td class="diff_good editable_app">
+                                <input type="text" name="appConfig[configItems][{{ loop.index0 }}][value]" value="{{ application.getConfigItem(key).value }}" />
+                            </td>
+                            <td>
+                                <div class="btn-toolbar diff-toolbar-main" role="toolbar" data-role="config-item-toolbar">
+                                    <div class="btn-group btn-group-xs pull-right">
+                                        <a href="#" class="btn btn-link" data-role="delete-config-button" data-config-index="{{ loop.index0 }}" data-toggle="tooltip" data-placement="bottom" title="Delete config"><span class="glyphicon glyphicon-trash"></span></a>
+                                    </div>
+                                </div>
+                            </td>
                             <td></td>
                         {% elseif key in diff['identical'] %}
-                            <td>{{ app.getConfigItem(key).value }}</td>
-                            <td>{{ otherApp.getConfigItem(key).value }}</td>
+                            {#<td class="editable_app">{{ application.getConfigItem(key).value }}</td>#}
+                            <td class="editable_app">
+                                <input type="text" name="appConfig[configItems][{{ loop.index0 }}][value]" value="{{ application.getConfigItem(key).value }}" />
+                            </td>
+                            <td>
+                                <div class="btn-toolbar diff-toolbar-main" role="toolbar" data-role="config-item-toolbar">
+                                    <div class="btn-group btn-group-xs pull-right">
+                                        <a href="#" class="btn btn-link" data-role="copy-right-to-left-button" data-toggle="tooltip" data-placement="bottom" title="Copy right to left" data-config-index="{{ loop.index0 }}" data-config-keyname="{{ key }}" data-config-value="{{ otherApplication.getConfigItem(key).value }}"><span class="glyphicon glyphicon-arrow-left"></span></a>
+                                        <a href="#" class="btn btn-link" data-role="delete-config-button" data-config-index="{{ loop.index0 }}" data-toggle="tooltip" data-placement="bottom" title="Delete config"><span class="glyphicon glyphicon-trash"></span></a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ otherApplication.getConfigItem(key).value }}</td>
                         {% elseif key in diff['different'] %}
-                            <td class="diff_bad">{{ app.getConfigItem(key).value }}</td>
-                            <td class="diff_bad">{{ otherApp.getConfigItem(key).value }}</td>
+                            {#<td class="diff_bad editable_app">{{ application.getConfigItem(key).value }}</td>#}
+                            <td class="diff_bad editable_app">
+                                <input type="text" name="appConfig[configItems][{{ loop.index0 }}][value]" value="{{ application.getConfigItem(key).value }}" />
+                            </td>
+                            <td>
+                                <div class="btn-toolbar diff-toolbar-main" role="toolbar" data-role="config-item-toolbar">
+                                    <a href="#" class="btn btn-link" data-role="copy-right-to-left-button" data-toggle="tooltip" data-placement="bottom" title="Copy right to left" data-config-index="{{ loop.index0 }}" data-config-keyname="{{ key }}" data-config-value="{{ otherApplication.getConfigItem(key).value }}"><span class="glyphicon glyphicon-arrow-left"></span></a>
+                                    <a href="#" class="btn btn-link" data-role="delete-config-button" data-config-index="{{ loop.index0 }}" data-toggle="tooltip" data-placement="bottom" title="Delete config"><span class="glyphicon glyphicon-trash"></span></a>
+                                </div>
+                            </td>
+                            <td class="diff_bad">{{ otherApplication.getConfigItem(key).value }}</td>
                         {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4">
+                            {# ----- MAIN TOOLBAR ----- #}
+                            <div class="btn-toolbar diff-toolbar-main" role="toolbar">
+                                <div class="btn-group pull-right">
+                                    <a href="#" class="btn btn-default" data-role="add-config-button"><span class="glyphicon glyphicon-plus"></span> Add config</a>
+                                    <a href="#" class="btn btn-primary" data-role="save-config-button"><span class="glyphicon glyphicon-ok"></span> Save configuration</a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
+            </form>
         {% endif %}
     </div>
 {% endblock body %}

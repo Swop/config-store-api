@@ -8,6 +8,18 @@ admin_app_create:
     requirements:
         _method:  POST
 
+admin_app_config_update:
+    path: /{appSlug}/config/update
+    defaults: { _controller: "swop.config_store.controller.admin.app_config:updateAction" }
+    requirements:
+        _method:  POST
+
+admin_app_config_edit:
+    path: /{appSlug}/config/edit
+    defaults: { _controller: "swop.config_store.controller.admin.app_config:editAction" }
+    requirements:
+        _method:  GET
+
 admin_app_diff:
     path: /{appSlug}/diff/{otherAppSlug}
     defaults: { _controller: "swop.config_store.controller.admin.app:diffAction" }

@@ -66,11 +66,20 @@ class App
 
     public function setConfigItems($configItems)
     {
-        if (is_array($configItems)) {
-            $this->configItems = new ArrayCollection($configItems);
-        } elseif ($configItems instanceof Collection) {
-            $this->configItems = $configItems;
+        $this->configItems = new ArrayCollection();
+
+        if ($configItems instanceof Collection) {
+            $configItems = $configItems->toArray();
         }
+
+        foreach ($configItems as $configItem) {
+            $this->addConfigItem($configItem);
+        }
+    }
+
+    public function removeConfigItem($configItem)
+    {
+        $this->configItems->removeElement($configItem);
     }
 
     /**

@@ -6,7 +6,12 @@
     <div class="panel panel-default" id="group-{{ id }}">
         <div class="panel-heading">
             <h4 class="panel-title">
-                {% if group %}{{ group.name }}{% else %}Other apps{% endif %}
+                {% if group %}
+                    {{ group.name }}
+                    <a href="{{ secure_path('admin_group_delete', 'deleteGroup', {'groupId': group.id}) }}"><span class="pull-right glyphicon glyphicon-trash"></span></a>
+                {% else %}
+                    Other apps
+                {% endif %}
             </h4>
         </div>
         <div class="panel-body">
@@ -20,7 +25,7 @@
                     {% if diff %}
                         {% set missing = diff['missing_left']|length %}
                         {% set new = diff['missing_right']|length %}
-                        {% set diffKeyCount = diff['missing_left']|length + diff['missing_right']|length %}
+                        {% set diffKeyCount = diff['missing_left']|length %}
                     {% endif %}
                     {% set possibleToCompareToRef = not isRef and ref is not null %}
 
@@ -79,7 +84,7 @@
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu" role="menu">
-                                        <li><a href="#"><span class="glyphicon glyphicon-wrench"></span> Edit config keys</a></li>
+                                        <li><a href="{{ path('admin_app_config_edit', {'appSlug': app.slug}) }}"><span class="glyphicon glyphicon-wrench"></span> Edit config keys</a></li>
                                         <li class="divider"></li>
                                         <li><a href="#"><span class="glyphicon glyphicon-repeat"></span> Duplicate...</a></li>
                                         {% if app.group and not isRef %}<li><a href="#">Consider as <span class="label label-default">REF</span></a></li>{% endif %}
@@ -94,20 +99,20 @@
                             {# ----- END APP BODY ----- #}
 
                             {# ----- DIFF ERRORS ----- #}
-                            {% if outOfSync %}
-                                <ul class="list-group list-diff-errors">
-                                    {% if missing is defined %}
-                                        <li class="list-group-item">
+                            {#{% if outOfSync %}#}
+                                <ul class="list-group">
+                                    {% if missing is defined and missing > 0 %}
+                                        <li class="list-group-item list-diff-errors">
                                             <span class="label label-danger pull-right">{{ missing }}</span>Missing
                                         </li>
                                     {% endif %}
-                                    {% if new is defined %}
-                                        <li class="list-group-item">
-                                            <span class="label label-danger pull-right">{{ new }}</span>New
+                                    {% if new is defined and new > 0%}
+                                        <li class="list-group-item list-diff-warnings">
+                                            <span class="label label-warning pull-right">{{ new }}</span>New
                                         </li>
                                     {% endif %}
                                 </ul>
-                            {% endif %}
+                            {#{% endif %}#}
                             {# ----- END DIFF ERRORS ----- #}
 
                             {# ----- APP FOOTER (APIKEY) ----- #}
@@ -162,8 +167,8 @@
     <div class="row">
         <div class="hidden-sm col-md-2" id="app-list-nav">
             <ul class="nav nav-pills nav-stacked" data-spy="affix">
-                {% for groupItem in groups %}
-                    <li {% if loop.first %}class="active"{% endif %}><a href="#group-{{ groupItem.group.id }}">{{ groupItem.group.name }}</a></li>
+                {% for group in groups %}
+                    <li {% if loop.first %}class="active"{% endif %}><a href="#group-{{ group.id }}">{{ group.name }}</a></li>
                 {% endfor %}
                 <li><a href="#group-standalone">Other apps</a></li>
             </ul>
@@ -173,14 +178,15 @@
             {# ----- MAIN TOOLBAR ----- #}
             <div class="btn-toolbar app-list-toolbar-main" role="toolbar">
                 <div class="btn-group pull-right">
+                    <a href="#" class="btn btn-default" data-role="NewGroupButton" data-target="#group-new-modal"><span class="glyphicon glyphicon-plus"></span> New group</a>
                     <a href="#" class="btn btn-primary" data-role="NewAppButton" data-target="#app-new-modal"><span class="glyphicon glyphicon-plus"></span> New application</a>
                 </div>
             </div>
 
             {# ----- APP GROUPS ----- #}
             <div class="panel-group">
-                {% for groupItem in groups %}
-                    {{ listing.appgroup(groupItem['apps'], groupItem['group'].id, groupItem['group']) }}
+                {% for group in groups %}
+                    {{ listing.appgroup(group.apps, group.id, group) }}
                 {% endfor %}
                 {{ listing.appgroup(standaloneApps, 'standalone') }}
             </div>
@@ -194,8 +200,8 @@
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                         <h4 class="modal-title">New application</h4>
                     </div>
-                    <div class="modal-body">
-                        <form role="form" data-role="new-app-form">
+                    <form role="form" data-role="new-app-form">
+                        <div class="modal-body">
                             <div class="form-group">
                                 <label for="app_name" >Name</label>
                                 <input type="text" id="app_name" name="app[name]" class="form-control" placeholder="Name of the application" />
@@ -204,17 +210,42 @@
                                 <label for="app_group" >Group</label>
                                 <select id="app_group" name="app[group]" class="form-control">
                                     <option value=""></option>
-                                    {% for groupItem in groups %}
-                                        <option value="{{ groupItem.group.id }}">{{ groupItem.group.name }}</option>
+                                    {% for group in groups %}
+                                        <option value="{{ group.id }}">{{ group.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                        </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" data-role="app-new-submit-button">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {# ----- END NEW APP MODAL ----- #}
+
+        {# ----- NEW GROUP MODAL ----- #}
+        <div class="modal fade" id="group-new-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">New group</h4>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-role="app-new-submit-button">Add</button>
-                    </div>
+                    <form role="form" data-role="new-group-form">
+                        <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="group_name" >Group name</label>
+                                    <input type="text" id="group_name" name="app_group[name]" class="form-control" placeholder="Name of the group" />
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" data-role="group-new-submit-button">Add</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
